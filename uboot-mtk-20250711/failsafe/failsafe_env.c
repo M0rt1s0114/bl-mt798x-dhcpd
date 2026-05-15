@@ -22,6 +22,26 @@
 
 #define ENV_NAME_MAX_LEN 128
 
+#ifdef CONFIG_WEBUI_FAILSAFE_ENV_DEFAULT_GLBTN_KEY
+static void failsafe_env_ensure_default_glbtn_key(void)
+{
+	const char *val;
+	int ret;
+
+	val = env_get("glbtn_key");
+	if (val)
+		return;
+
+	ret = env_set("glbtn_key", "reset,wps,mesh");
+	if (!ret)
+		ret = env_save();
+		printf("Set default glbtn_key env to 'reset,wps,mesh'\n");
+
+	if (ret)
+		printf("Warning: failed to set default glbtn_key env\n");
+}
+#endif
+
 static void failsafe_env_free_session(enum httpd_uri_handler_status status,
 	struct httpd_response *response)
 {
@@ -148,6 +168,10 @@ void env_list_handler(enum httpd_uri_handler_status status,
 		failsafe_http_reply_text(response, 405, "method");
 		return;
 	}
+
+#ifdef CONFIG_WEBUI_FAILSAFE_ENV_DEFAULT_GLBTN_KEY
+	failsafe_env_ensure_default_glbtn_key();
+#endif
 
 	out = failsafe_env_export_text(&out_len);
 	if (!out) {

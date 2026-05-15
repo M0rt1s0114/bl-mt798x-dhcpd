@@ -91,6 +91,15 @@ config WEBUI_FAILSAFE_ENV
 	  Enable environment variable management (list/add/delete/reset/restore)
 	  in the failsafe Web UI.
 
+config WEBUI_FAILSAFE_ENV_DEFAULT_GLBTN_KEY
+	bool "Auto-create default glbtn_key when missing"
+	default y
+	depends on WEBUI_FAILSAFE_ENV
+	help
+	  When enabled, failsafe environment API will automatically create
+	  and persist glbtn_key=reset,wps,mesh if glbtn_key does not exist.
+	  Existing glbtn_key values are never overwritten.
+
 config WEBUI_FAILSAFE_CONSOLE
 	bool "Enable failsafe Web console (DANGEROUS)"
 	select CONSOLE_RECORD
