@@ -14,6 +14,11 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
+#include <vsprintf.h>
+#include <linux/delay.h>
+#ifdef CONFIG_MTK_DHCPD
+#include <net/mtk_dhcpd.h>
+#endif
 #ifdef CONFIG_CMD_GL_BTN
 #include <glbtn.h>
 #endif
@@ -88,6 +93,20 @@ void main_loop(void)
 		cli_secure_boot_cmd(s);
 
 	autoboot_command(s);
+
+	/*
+	 * autoboot_command() returned: boot was interrupted or failed.
+	 * Start network services so the user can reach the device.
+	 * Note: we delay starting the network services to here to avoid potential
+	 * issues with the network during boot, e.g. if the network is not ready yet.
+	 */
+#ifdef CONFIG_MTK_DHCPD
+	{
+		udelay(100000);
+		printf("Start DHCPD server\n");
+		mtk_dhcpd_start();
+	}
+#endif
 
 	/* if standard boot if enabled, assume that it will be able to boot */
 	if (IS_ENABLED(CONFIG_BOOTSTD_PROG)) {
