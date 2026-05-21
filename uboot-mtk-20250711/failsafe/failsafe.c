@@ -866,6 +866,14 @@ static void js_handler(enum httpd_uri_handler_status status,
 			file = "i18n.js";
 		else if (uri && strstr(uri, "themeloader.js"))
 			file = "themeloader.js";
+		else if (uri && strstr(uri, "backup.js"))
+			file = "backup.js";
+		else if (uri && strstr(uri, "console.js"))
+			file = "console.js";
+		else if (uri && strstr(uri, "env.js"))
+			file = "env.js";
+		else if (uri && strstr(uri, "flash.js"))
+			file = "flash.js";
 
 		output_plain_file(response, file);
 		response->info.content_type = "text/javascript";
@@ -982,11 +990,13 @@ int start_web_failsafe(void)
 #endif
 #ifdef CONFIG_WEBUI_FAILSAFE_BACKUP
 	httpd_register_uri_handler(inst, "/backup.html", &html_handler, NULL);
+	httpd_register_uri_handler(inst, "/backup.js", &js_handler, NULL);
 	httpd_register_uri_handler(inst, "/backup/info", &backupinfo_handler, NULL);
 	httpd_register_uri_handler(inst, "/backup/main", &backup_handler, NULL);
 #endif
 #ifdef CONFIG_WEBUI_FAILSAFE_FLASH
 	httpd_register_uri_handler(inst, "/flash.html", &html_handler, NULL);
+	httpd_register_uri_handler(inst, "/flash.js", &js_handler, NULL);
 	httpd_register_uri_handler(inst, "/flash/read", &flash_handler, NULL);
 	httpd_register_uri_handler(inst, "/flash/write", &flash_handler, NULL);
 	httpd_register_uri_handler(inst, "/flash/erase", &flash_handler, NULL);
@@ -994,6 +1004,7 @@ int start_web_failsafe(void)
 #endif
 #ifdef CONFIG_WEBUI_FAILSAFE_ENV
 	httpd_register_uri_handler(inst, "/env.html", &html_handler, NULL);
+	httpd_register_uri_handler(inst, "/env.js", &js_handler, NULL);
 	httpd_register_uri_handler(inst, "/env/list", &env_list_handler, NULL);
 	httpd_register_uri_handler(inst, "/env/set", &env_set_handler, NULL);
 	httpd_register_uri_handler(inst, "/env/unset", &env_unset_handler, NULL);
@@ -1014,6 +1025,7 @@ int start_web_failsafe(void)
 	/* Enable recording early so we can stream output to the browser */
 	failsafe_webconsole_ensure_recording();
 	httpd_register_uri_handler(inst, "/console.html", &html_handler, NULL);
+	httpd_register_uri_handler(inst, "/console.js", &js_handler, NULL);
 	httpd_register_uri_handler(inst, "/console/poll", &webconsole_poll_handler, NULL);
 	httpd_register_uri_handler(inst, "/console/exec", &webconsole_exec_handler, NULL);
 	httpd_register_uri_handler(inst, "/console/clear", &webconsole_clear_handler, NULL);
