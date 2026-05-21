@@ -36,6 +36,7 @@
     --primary-2:      #38bdf8;
     --primary-rgb:    37, 99, 235;
     --danger:         #dc2626;
+    --danger-rgb:     220, 38, 38;
     --success:        #16a34a;
     --success-rgb:    22, 163, 74;
     --warn-bg:        rgba(245, 158, 11, 0.10);
@@ -105,6 +106,7 @@
         --primary-2:      #22d3ee;
         --primary-rgb:    96, 165, 250;
         --danger:         #f87171;
+        --danger-rgb:     248, 113, 113;
         --success:        #4ade80;
         --success-rgb:    74, 222, 128;
         --warn-bg:        rgba(245, 158, 11, 0.08);
@@ -146,6 +148,7 @@ html[data-theme="light"] {
     --primary-2:      #38bdf8;
     --primary-rgb:    37, 99, 235;
     --danger:         #dc2626;
+    --danger-rgb:     220, 38, 38;
     --success:        #16a34a;
     --success-rgb:    22, 163, 74;
     --warn-bg:        rgba(245, 158, 11, 0.10);
@@ -185,6 +188,7 @@ html[data-theme="dark"] {
     --primary-2:      #22d3ee;
     --primary-rgb:    96, 165, 250;
     --danger:         #f87171;
+    --danger-rgb:     248, 113, 113;
     --success:        #4ade80;
     --success-rgb:    74, 222, 128;
     --warn-bg:        rgba(245, 158, 11, 0.08);
@@ -716,6 +720,7 @@ h1 {
     font-size: 1.62rem;
     line-height: 1.25;
     letter-spacing: -0.02em;
+    margin-top: 12px;
     border-bottom: 0;
     padding-bottom: 0;
     color: var(--text);
@@ -1094,6 +1099,16 @@ ul li {
 @keyframes barShimmer {
     from { background-position: -200% 0; }
     to   { background-position: 200% 0; }
+}
+
+.bar-text {
+    display: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ── File info labels ──────────────────────────────────────────── */
@@ -1717,6 +1732,150 @@ body[data-page="reboot"] #m {
     }
 }
 
+/* ── Status pages (flashing / booting / fail / 404) ─────────────── */
+body[data-page="flashing"] #m,
+body[data-page="booting"] #m,
+body[data-page="fail"] #m,
+body[data-page="404"] #m {
+    min-height: auto;
+}
+
+.status-card {
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+}
+
+.status-card #info {
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.status-hero {
+    width: 76px;
+    height: 76px;
+    margin: 14px auto 4px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(var(--primary-rgb), 0.20), transparent 70%),
+        linear-gradient(180deg, rgba(var(--primary-rgb), 0.12), rgba(var(--primary-rgb), 0.04));
+    border: 1px solid rgba(var(--primary-rgb), 0.24);
+    box-shadow:
+        0 0 0 6px rgba(var(--primary-rgb), 0.06),
+        0 12px 28px rgba(var(--primary-rgb), 0.18),
+        0 1px 0 var(--inset-highlight) inset;
+    position: relative;
+}
+
+.status-hero::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: inherit;
+    border: 1px dashed rgba(var(--primary-rgb), 0.20);
+    animation: statusSpin 14s linear infinite;
+    pointer-events: none;
+}
+
+.status-hero-danger {
+    color: var(--danger);
+    border-color: rgba(var(--danger-rgb), 0.30);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(var(--danger-rgb), 0.15), transparent 70%),
+        linear-gradient(180deg, rgba(var(--danger-rgb), 0.08), rgba(var(--danger-rgb), 0.02));
+    box-shadow:
+        0 0 0 6px rgba(var(--danger-rgb), 0.04),
+        0 12px 28px rgba(var(--danger-rgb), 0.12),
+        0 1px 0 var(--inset-highlight) inset;
+}
+
+.status-hero-danger::after {
+    border-color: rgba(var(--danger-rgb), 0.16);
+    animation-name: statusSpin;
+}
+
+.status-hero-muted {
+    color: var(--muted);
+    border-color: var(--border-strong);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(148, 163, 184, 0.10), transparent 70%),
+        linear-gradient(180deg, rgba(148, 163, 184, 0.05), transparent);
+    box-shadow:
+        0 0 0 6px rgba(148, 163, 184, 0.03),
+        0 10px 24px rgba(15, 23, 42, 0.06),
+        0 1px 0 var(--inset-highlight) inset;
+}
+
+.status-hero-muted::after {
+    border-color: rgba(148, 163, 184, 0.12);
+    animation-name: statusSpin;
+}
+
+.status-feedback {
+    width: min(520px, 100%);
+    margin: 8px auto 0;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.status-feedback #l {
+    margin: 0 auto;
+}
+
+@keyframes statusSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-hero::after,
+    .status-hero-danger::after,
+    .status-hero-muted::after {
+        animation: none;
+    }
+}
+
+/* ── Upload pages (card-head hero + centering) ──────────────────── */
+body[data-page="index"] .card-head,
+body[data-page="bl2"] .card-head,
+body[data-page="uboot"] .card-head,
+body[data-page="gpt"] .card-head,
+body[data-page="factory"] .card-head,
+body[data-page="simg"] .card-head,
+body[data-page="initramfs"] .card-head {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.upload-hero {
+    width: 48px;
+    height: 48px;
+    margin: 2px auto 10px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(var(--primary-rgb), 0.18), transparent 70%),
+        linear-gradient(180deg, rgba(var(--primary-rgb), 0.10), rgba(var(--primary-rgb), 0.03));
+    border: 1px solid rgba(var(--primary-rgb), 0.22);
+    box-shadow:
+        0 0 0 4px rgba(var(--primary-rgb), 0.05),
+        0 8px 20px rgba(var(--primary-rgb), 0.12),
+        0 1px 0 var(--inset-highlight) inset;
+}
+
+
 /* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 860px) {
     .app {
@@ -1803,5 +1962,15 @@ body[data-page="reboot"] #m {
     .reboot-hero {
         width: 64px;
         height: 64px;
+    }
+
+    .status-hero {
+        width: 64px;
+        height: 64px;
+    }
+
+    .upload-hero {
+        width: 40px;
+        height: 40px;
     }
 }

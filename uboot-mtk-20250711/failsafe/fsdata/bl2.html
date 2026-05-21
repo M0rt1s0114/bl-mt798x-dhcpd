@@ -17,6 +17,13 @@
 		<div class="main">
 			<div id="m">
 				<div class="card-head">
+					<div id="upload_hero" class="upload-hero" aria-hidden="true" style="display: none;">
+						<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+							<polyline points="17 8 12 3 7 8"></polyline>
+							<line x1="12" y1="3" x2="12" y2="15"></line>
+						</svg>
+					</div>
 					<h1 data-i18n="bl2.title">BL2 UPDATE</h1>
 					<p id="hint" data-i18n-html="bl2.hint">
 						You are going to update <strong>BL2 (preloader)</strong> on the device.<br>
@@ -30,6 +37,7 @@
 							onclick="upload('bl2')">
 					</form>
 					<div class="bar" id="bar" style="display: none; --percent: 0;"></div>
+					<span class="bar-text" id="bar_text"></span>
 					<div id="filename" style="display: none;">File: xxxx</div>
 					<div id="size" style="display: none;">Size: xxxx</div>
 					<div id="md5" style="display: none;">MD5: xxxx</div>

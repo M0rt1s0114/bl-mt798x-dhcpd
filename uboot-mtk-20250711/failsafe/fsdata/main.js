@@ -1081,6 +1081,9 @@ function upload(formFieldName) {
 
             const upgradeElement = document.getElementById("upgrade");
             if (upgradeElement) upgradeElement.style.display = "block";
+
+            const uploadHero = document.getElementById("upload_hero");
+            if (uploadHero) uploadHero.style.display = "none";
         },
         progress: (progressEvent) => {
             if (!progressEvent.total) return;
@@ -1089,6 +1092,13 @@ function upload(formFieldName) {
             if (progressElement) {
                 progressElement.style.display = "block";
                 progressElement.style.setProperty("--percent", percent);
+            }
+            const uploadHero = document.getElementById("upload_hero");
+            if (uploadHero) uploadHero.style.display = "";
+            const barText = document.getElementById("bar_text");
+            if (barText) {
+                barText.style.display = "block";
+                barText.textContent = percent + "%";
             }
         },
     });
