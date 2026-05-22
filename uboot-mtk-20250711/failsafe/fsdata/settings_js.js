@@ -102,6 +102,68 @@
         if (typeof applyI18n === "function") applyI18n(host);
     }
 
+    function ipToInt(ip) {
+        if (!ip) return null;
+        const parts = ip.split(".");
+        if (parts.length !== 4) return null;
+        let n = 0;
+        for (const p of parts) {
+            const v = parseInt(p, 10);
+            if (!Number.isFinite(v) || v < 0 || v > 255 || String(v) !== p.trim())
+                return null;
+            n = (n << 8) | v;
+        }
+        return n >>> 0;
+    }
+
+    function intToIp(n) {
+        return [(n >>> 24) & 0xff, (n >>> 16) & 0xff,
+                (n >>> 8) & 0xff, n & 0xff].join(".");
+    }
+
+    function syncServerIp() {
+        const ipInput = document.getElementById("set_ipaddr");
+        const nmInput = document.getElementById("set_netmask");
+        const srvInput = document.getElementById("set_serverip");
+        if (!ipInput || !nmInput || !srvInput) return;
+
+        const ip = ipToInt((ipInput.value || "").trim());
+        const nm = ipToInt((nmInput.value || "").trim());
+        if (ip === null || nm === null) return;
+
+        const net = (ip & nm) >>> 0;
+        const hostMax = (~nm) >>> 0;
+        if (hostMax < 2) return;
+
+        const ipHost = (ip & ~nm) >>> 0;
+        const cur = ipToInt((srvInput.value || "").trim());
+        if (cur !== null) {
+            const curNet = (cur & nm) >>> 0;
+            const curHost = (cur & ~nm) >>> 0;
+            if (curNet === net && curHost !== 0 &&
+                curHost !== hostMax && curHost !== ipHost)
+                return;
+        }
+
+        let host = hostMax - 1;
+        if (host === ipHost) host = hostMax > 2 ? hostMax - 2 : 1;
+        if (host < 1) host = 1;
+
+        srvInput.value = intToIp((net | host) >>> 0);
+    }
+
+    function bindNetworkSync() {
+        const ipInput = document.getElementById("set_ipaddr");
+        const nmInput = document.getElementById("set_netmask");
+        const inputs = [ipInput, nmInput];
+        for (const el of inputs) {
+            if (!el || el.dataset.netbound === "1") continue;
+            el.dataset.netbound = "1";
+            el.addEventListener("input", syncServerIp);
+            el.addEventListener("blur", syncServerIp);
+        }
+    }
+
     function bindDarkVariantControl() {
         const select = document.getElementById("settings_dark_variant");
         if (!select || select.dataset.bound === "1") return;
@@ -201,6 +263,7 @@
     function init() {
         buildAccentControls();
         bindDarkVariantControl();
+        bindNetworkSync();
         populateMtdLayouts();
         refresh();
     }

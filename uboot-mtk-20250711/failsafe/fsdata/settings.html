@@ -74,6 +74,36 @@
 						</section>
 
 						<section class="settings-section">
+							<h2 class="settings-heading" data-i18n="settings.section.network">Network</h2>
+							<div class="form-row form-row-2">
+								<div class="field">
+									<label for="set_ipaddr" data-i18n="settings.network.ipaddr">U-Boot IP address (ipaddr):</label>
+									<input id="set_ipaddr" class="field-control" type="text"
+										data-env="ipaddr"
+										autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+										placeholder="192.168.1.1">
+								</div>
+								<div class="field">
+									<label for="set_netmask" data-i18n="settings.network.netmask">Netmask (netmask):</label>
+									<input id="set_netmask" class="field-control" type="text"
+										data-env="netmask"
+										autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+										placeholder="255.255.255.0">
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="field">
+									<label for="set_serverip" data-i18n="settings.network.serverip">TFTP server IP (serverip):</label>
+									<input id="set_serverip" class="field-control" type="text"
+										data-env="serverip"
+										autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+										placeholder="192.168.1.254">
+								</div>
+							</div>
+							<p class="settings-help" data-i18n="settings.network.help">serverip is auto-synced to the same subnet as ipaddr when ipaddr or netmask changes.</p>
+						</section>
+
+						<section class="settings-section">
 							<h2 class="settings-heading" data-i18n="settings.section.failsafe">Failsafe</h2>
 							<div class="form-row">
 								<div class="field">
@@ -108,6 +138,18 @@
 
 						<section class="settings-section">
 							<h2 class="settings-heading" data-i18n="settings.section.dhcpd">DHCP Server</h2>
+							<div class="form-row form-row-2">
+								<div class="field">
+									<label for="set_dhcpd_pool_start" data-i18n="settings.dhcpd.pool_start">Pool start host (dhcpd_pool_start):</label>
+									<input id="set_dhcpd_pool_start" class="field-control" type="number" min="1" max="65534"
+										data-env="dhcpd_pool_start" placeholder="100">
+								</div>
+								<div class="field">
+									<label for="set_dhcpd_pool_size" data-i18n="settings.dhcpd.pool_size">Pool size (dhcpd_pool_size):</label>
+									<input id="set_dhcpd_pool_size" class="field-control" type="number" min="1" max="65535"
+										data-env="dhcpd_pool_size" placeholder="101">
+								</div>
+							</div>
 							<div class="form-row">
 								<div class="field">
 									<label for="set_dhcpd_verbose" data-i18n="settings.dhcpd.verbose">Verbose log:</label>
@@ -118,6 +160,7 @@
 									</select>
 								</div>
 							</div>
+							<p class="settings-help" data-i18n="settings.dhcpd.help">Pool host index is relative to the current network. Empty keeps the device default.</p>
 						</section>
 
 						<div class="form-actions">
