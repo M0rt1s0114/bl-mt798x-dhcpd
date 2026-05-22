@@ -24,7 +24,7 @@
         theme: "theme",
         accent: "failsafe_theme_color_cache",
     });
-    const TRANSITION_DURATION_MS = 600;
+    const TRANSITION_DURATION_MS = 620;
     const HEX_SHORT = /^[0-9a-f]{3}$/i;
     const HEX_FULL  = /^[0-9a-f]{6}$/i;
 
@@ -84,22 +84,30 @@
     const getCachedAccent = () => normalizeHex(readStorage(STORAGE_KEYS.accent));
 
     /* ── Theme transition animation ──────────────────────────── */
+    /*
+     * The class must be present BEFORE the property values change, otherwise
+     * the browser jumps to the new values without interpolation. We expose
+     * a pulse() function that arms the class, then applyThemeMode() pulses
+     * first and uses double-rAF to commit the class before flipping data-theme.
+     * The MutationObserver only handles external attribute changes (devtools,
+     * legacy callers); the silent flag suppresses double-pulsing on our own
+     * changes.
+     */
     const setupTransition = (root) => {
         if (prefersReducedMotion) return;
 
         let timer = null;
-        let ready = false;
         let lastAttr = root.getAttribute("data-theme");
 
         const pulse = () => {
-            if (!ready) return;
-            if (timer) { clearTimeout(timer); timer = null; }
+            if (timer) clearTimeout(timer);
             root.classList.add("theme-transition");
             timer = setTimeout(() => {
                 root.classList.remove("theme-transition");
                 timer = null;
-            }, TRANSITION_DURATION_MS);
+            }, TRANSITION_DURATION_MS + 60);
         };
+        root.__failsafeThemePulse = pulse;
 
         try {
             new MutationObserver(() => {
@@ -120,9 +128,6 @@
             };
             mq.addEventListener?.("change", onChange) ?? mq.addListener?.(onChange);
         } catch { /* matchMedia unavailable */ }
-
-        /* defer readiness so initial paint skips transition */
-        setTimeout(() => { ready = true; }, 0);
     };
 
     /* ── Theme mode application ──────────────────────────────── */
@@ -138,7 +143,6 @@
         const resolved = isAuto ? getPreferredScheme() : schema;
 
         const setAttr = () => {
-            if (silent) root.__failsafeThemeSilent = true;
             if (isAuto) {
                 root.setAttribute("data-theme-auto", "1");
             } else {
@@ -146,17 +150,29 @@
             }
             root.setAttribute("data-theme", resolved);
             applyThemeColorMeta(getCachedAccent() ?? (resolved === "dark" ? "#070b16" : "#eef2f8"));
-            if (silent) {
-                setTimeout(() => { root.__failsafeThemeSilent = false; }, 0);
-            }
         };
 
-        /* double rAF batches layout before triggering transitions */
-        if (!silent && !prefersReducedMotion && typeof requestAnimationFrame === "function") {
-            requestAnimationFrame(() => requestAnimationFrame(setAttr));
-        } else {
+        if (silent || prefersReducedMotion) {
+            root.__failsafeThemeSilent = true;
             setAttr();
+            /* setTimeout(0) fires after the observer's microtask, so the
+             * observer reads silent=true and skips its pulse before we clear it */
+            setTimeout(() => { root.__failsafeThemeSilent = false; }, 0);
+            return;
         }
+
+        /* arm the transition class first so the property changes interpolate */
+        root.__failsafeThemePulse?.();
+
+        /* suppress observer's redundant pulse on our own change */
+        root.__failsafeThemeSilent = true;
+
+        /* double rAF: ensures the class addition is committed to the render
+         * tree before we mutate the property values it animates */
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            setAttr();
+            setTimeout(() => { root.__failsafeThemeSilent = false; }, 0);
+        }));
     };
 
     /* ── Bootstrap ───────────────────────────────────────────── */
