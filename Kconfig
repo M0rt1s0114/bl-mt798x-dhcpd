@@ -1,0 +1,135 @@
+mainmenu "bl-mt798x-dhcpd build configuration"
+
+menu "Build selection"
+
+config BUILD_FIP
+	bool "Build FIP via build.sh"
+	default y
+
+config BUILD_ATF
+	bool "Build ATF via compile_atf.sh"
+	default n
+
+config BUILD_GPT
+	bool "Build GPT via generate_gpt.sh"
+	default n
+
+endmenu
+
+menu "FIP build settings"
+
+choice
+	prompt "Build version"
+	default VERSION_2025
+
+config VERSION_2025
+	bool "2025"
+
+config VERSION_SP1
+	bool "SP1"
+
+config VERSION_SP2
+	bool "SP2"
+endchoice
+
+config BOARD
+	string "Board name"
+	default ""
+	help
+	  Set the board name used by the default `make` target.
+	  Examples: cmcc_a10, sn_r1, or any board supported by the selected version.
+
+choice
+	prompt "Variant"
+	default VARIANT_DEFAULT
+
+config VARIANT_DEFAULT
+	bool "default"
+
+config VARIANT_UBOOTMOD
+	bool "ubootmod"
+
+config VARIANT_NONMBM
+	bool "nonmbm"
+
+config VARIANT_OPENWRT
+	bool "openwrt"
+endchoice
+
+choice
+	prompt "Failsafe theme"
+	default FSTHEME_BOOTSTRAP
+
+config FSTHEME_BOOTSTRAP
+	bool "bootstrap"
+
+config FSTHEME_GL
+	bool "gl"
+
+config FSTHEME_MTK
+	bool "mtk"
+endchoice
+
+config MULTI_LAYOUT
+	bool "Enable multi-layout"
+	default y
+
+config FIXED_MTDPARTS
+	bool "Enable fixed mtdparts"
+	default y
+
+config SIMG
+	bool "Enable SIMG packaging"
+	default n
+
+config COPY_BL2
+	bool "Copy BL2 after build"
+	default y
+
+config SILENT
+	bool "Run scripts in silent mode"
+	default y
+
+endmenu
+
+menu "ATF build settings"
+
+config ATFCFG_DIR
+	string "ATF config directory"
+	default "mt798x_atf"
+
+config CFG_SUBDIR
+	string "ATF config subdirectory"
+	default ""
+
+config OUTPUT_DIR
+	string "ATF output directory"
+	default "output_bl2"
+
+config ATF_DIR
+	string "Override ATF source directory"
+	default ""
+
+config UBOOT_DIR
+	string "Override U-Boot source directory"
+	default ""
+
+endmenu
+
+menu "GPT build settings"
+
+config SHOW
+	bool "Show GPT layout"
+	default n
+
+config DRAW_MODE
+	string "GPT draw mode"
+	default "0"
+	help
+	  Use 0 for normal output, 1 to draw a diagram, or notitle to hide the title.
+
+config SDMMC
+	bool "Enable SDMMC GPT mode"
+	default n
+
+endmenu
