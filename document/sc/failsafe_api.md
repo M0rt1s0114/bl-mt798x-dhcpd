@@ -30,17 +30,22 @@ UI 资源风格（3 选 1）：
 
 - `CONFIG_WEBUI_FAILSAFE_UI_BOOTSTRAP`（`fsdata/`）
 - `CONFIG_WEBUI_FAILSAFE_UI_MTK`（`fsdata_mtk/`）
-- `CONFIG_WEBUI_FAILSAFE_UI_GL`（`fsdata_old/`）
+- `CONFIG_WEBUI_FAILSAFE_UI_GL`（`fsdata_gl/`）
 
 可选能力：
 
+- `CONFIG_WEBUI_FAILSAFE_ADVANCED`：高级功能总开关（backup/flash/env/console 依赖此项）
 - `CONFIG_WEBUI_FAILSAFE_I18N`：`/i18n.js`
 - `CONFIG_WEBUI_FAILSAFE_BACKUP`：备份下载接口
 - `CONFIG_WEBUI_FAILSAFE_FLASH`：Flash 编辑接口
 - `CONFIG_WEBUI_FAILSAFE_ENV`：环境变量管理接口
+- `CONFIG_WEBUI_FAILSAFE_ENV_CUSTOM_ENV`：首次访问时加载自定义环境变量
+- `CONFIG_WEBUI_FAILSAFE_ENV_CUSTOM_ENV_FILE`：自定义环境变量文件路径（默认 `defenvs/custom_env`）
+- `CONFIG_WEBUI_FAILSAFE_ENV_DEFAULT_GLBTN_KEY`：自动创建默认 `glbtn_key`
 - `CONFIG_WEBUI_FAILSAFE_CONSOLE`：Web 控制台接口
 - `CONFIG_WEBUI_FAILSAFE_FACTORY`：factory 升级入口
 - `CONFIG_WEBUI_FAILSAFE_SIMG`：simg 升级入口
+- `CONFIG_WEBUI_FAILSAFE_BUILD_VARIANT`：构建变体标签字符串
 
 ---
 
@@ -99,7 +104,7 @@ UI 资源风格（3 选 1）：
 - `firmware/fip/bl2/factory/simg` 走 `failsafe_validate_image()`
 - `initramfs` 走 `fdt_check_header()`
 
-### 4.2 `GET /result`（或页面触发请求）
+### 4.2 `POST /result`（或页面触发请求）
 
 执行写入动作并返回结果。
 
@@ -114,12 +119,12 @@ UI 资源风格（3 选 1）：
 - `initramfs` 不落盘，视作成功（后续可直接内存启动）。
 - 成功后可能触发自动动作（重启或 `boot_from_mem`），受 `failsafe_auto_reboot` 与镜像类型影响。
 
-### 4.3 `GET /reboot`
+### 4.3 `POST /reboot`
 
 - 返回：`rebooting`
 - 在连接关闭后执行 `do_reset()`。
 
-### 4.4 `GET /reboot-failsafe`
+### 4.4 `POST /reboot-failsafe`
 
 - 先执行：`env_set("failsafe", "1")` + `env_save()`
 - 成功返回：`rebooting to failsafe`
@@ -365,15 +370,15 @@ UI 资源风格（3 选 1）：
 
 ---
 
-## 9. 主题与图标 API（新 UI）
+## 9. 主题与图标 API（BOOTSTRAP UI）
 
-> `theme_*` 接口注册条件：`CONFIG_WEBUI_FAILSAFE_ENV && CONFIG_WEBUI_FAILSAFE_UI_BOOTSTRAP`
+> `theme_*` 接口注册条件：`CONFIG_WEBUI_FAILSAFE_UI_BOOTSTRAP`
 
 ### 9.1 `GET /theme/get`
 
 返回：
 
-- `{"ok":true,"color":"#rrggbb","theme":"auto|light|dark"}`
+- `{"ok":true,"color":"#rrggbb","theme":"auto|light|dark","dark_variant":"standard|amoled"}`
 
 ### 9.2 `POST /theme/set`
 
@@ -381,6 +386,7 @@ UI 资源风格（3 选 1）：
 
 - `color`：`#RGB` / `#RRGGBB`（内部规范化为 `#rrggbb`）
 - `theme`：`auto|light|dark`
+- `dark_variant`：`standard` | `amoled`
 
 成功：
 
@@ -390,6 +396,7 @@ UI 资源风格（3 选 1）：
 
 - `400 {"ok":false,"error":"bad_color"}`
 - `400 {"ok":false,"error":"bad_theme"}`
+- `400 {"ok":false,"error":"bad_dark_variant"}`
 - `500 {"ok":false,"error":"save"}`
 
 ### 9.3 `GET /favicon.svg`（及图片资源）
@@ -404,16 +411,26 @@ UI 资源风格（3 选 1）：
 已注册页面（按配置条件可能增减）：
 
 - `/`、`/uboot.html`、`/bl2.html`、`/initramfs.html`
-- `/flashing.html`、`/fail.html`、`/reboot.html`
+- `/booting.html`、`/flashing.html`、`/fail.html`、`/reboot.html`
 - `/gpt.html`（MMC 存在时）
 - `/backup.html`、`/flash.html`、`/env.html`、`/console.html`
+- `/settings.html`（新 UI）
 - `/factory.html`、`/simg.html`
+
+OpenWrt 兼容路由：
+
+- `/cgi-bin/luci`、`/cgi-bin/luci/` → 重定向到 `/`
 
 静态资源：
 
 - `/style.css`
 - `/main.js`
-- `/themeloader.js`（新 UI）
+- `/backup_js.js`（启用 backup）
+- `/flash_js.js`（启用 flash）
+- `/env_js.js`（启用 env）
+- `/console_js.js`（启用 console）
+- `/settings_js.js`（新 UI）
+- `/theme.js`（新 UI）
 - `/i18n.js`（启用 I18N）
 - `/favicon.svg`（新 UI）
 
@@ -435,7 +452,7 @@ UI 资源风格（3 选 1）：
 `failsafe_auto_reboot` 判定：
 
 - 环境变量值为 `1/true/yes/on` 时启用
-- 若未设置：`UI_GL` 或 `UI_MTK` 默认启用；`UI_NEW` 默认关闭
+- 若未设置：`UI_GL` 或 `UI_MTK` 默认启用；`UI_BOOTSTRAP` 默认关闭
 
 后续动作：
 
