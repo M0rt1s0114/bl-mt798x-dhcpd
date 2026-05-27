@@ -71,10 +71,6 @@ int __weak failsafe_write_image(const void *data, size_t size, failsafe_fw_t fw)
 
 static bool services_auto_started;
 
-static void not_found_handler(enum httpd_uri_handler_status status,
-			      struct httpd_request *request,
-			      struct httpd_response *response);
-
 void schedule_hook(void)
 {
 	bool need_poll = failsafe_httpd_running;
@@ -648,6 +644,16 @@ static void reboot_failsafe_handler(enum httpd_uri_handler_status status,
 	}
 }
 
+static void not_found_handler(enum httpd_uri_handler_status status,
+			      struct httpd_request *request,
+			      struct httpd_response *response)
+{
+	if (status == HTTP_CB_NEW) {
+		output_plain_file(response, "404.html");
+		response->info.code = 404;
+	}
+}
+
 static void index_handler(enum httpd_uri_handler_status status,
 			  struct httpd_request *request,
 			  struct httpd_response *response)
@@ -966,16 +972,6 @@ static void js_handler(enum httpd_uri_handler_status status,
 			return;
 		}
 		response->info.content_type = "text/javascript";
-	}
-}
-
-static void not_found_handler(enum httpd_uri_handler_status status,
-			      struct httpd_request *request,
-			      struct httpd_response *response)
-{
-	if (status == HTTP_CB_NEW) {
-		output_plain_file(response, "404.html");
-		response->info.code = 404;
 	}
 }
 
