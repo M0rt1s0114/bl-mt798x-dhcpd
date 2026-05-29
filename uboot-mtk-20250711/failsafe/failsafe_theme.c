@@ -28,17 +28,6 @@
 #define THEME_DARK_VARIANT_ENV "failsafe_theme_dark_variant"
 #define THEME_DARK_VARIANT_MAX_LEN 12
 
-static void failsafe_http_reply_json(struct httpd_response *response, int code,
-	const char *json)
-{
-	response->status = HTTP_RESP_STD;
-	response->data = json ? json : "{}";
-	response->size = strlen(response->data);
-	response->info.code = code;
-	response->info.connection_close = 1;
-	response->info.content_type = "application/json";
-}
-
 static int failsafe_theme_normalize_hex(const char *in, char *out, size_t out_sz)
 {
 	const char *p;
@@ -80,49 +69,6 @@ static int failsafe_theme_normalize_hex(const char *in, char *out, size_t out_sz
 	for (i = 0; i < 6; i++)
 		out[1 + i] = tolower((unsigned char)p[i]);
 	out[7] = '\0';
-	return 0;
-}
-
-static int theme_get_form_value(struct httpd_request *request,
-	const char *key, char **out, size_t max_len, bool allow_empty,
-	bool allow_missing)
-{
-	struct httpd_form_value *v;
-	char *buf;
-	size_t n;
-
-	if (!request || !key || !out)
-		return -EINVAL;
-
-	v = httpd_request_find_value(request, key);
-	if (!v || !v->data) {
-		if (allow_missing) {
-			*out = NULL;
-			return 0;
-		}
-		if (allow_empty) {
-			buf = strdup("");
-			if (!buf)
-				return -ENOMEM;
-			*out = buf;
-			return 0;
-		}
-		return -EINVAL;
-	}
-
-	n = v->size;
-	if (!allow_empty && !n)
-		return -EINVAL;
-	if (n > max_len)
-		return -E2BIG;
-
-	buf = malloc(n + 1);
-	if (!buf)
-		return -ENOMEM;
-
-	memcpy(buf, v->data, n);
-	buf[n] = '\0';
-	*out = buf;
 	return 0;
 }
 
@@ -290,7 +236,7 @@ void theme_set_handler(enum httpd_uri_handler_status status,
 		return;
 	}
 
-	ret = theme_get_form_value(request, "color", &color,
+	ret = failsafe_get_form_value(request, "color", &color,
 		THEME_COLOR_MAX_LEN, true, true);
 	if (ret) {
 		failsafe_http_reply_json(response, 400,
@@ -298,7 +244,7 @@ void theme_set_handler(enum httpd_uri_handler_status status,
 		return;
 	}
 
-	ret = theme_get_form_value(request, "theme", &theme,
+	ret = failsafe_get_form_value(request, "theme", &theme,
 		THEME_MODE_MAX_LEN, true, true);
 	if (ret) {
 		free(color);
@@ -307,7 +253,7 @@ void theme_set_handler(enum httpd_uri_handler_status status,
 		return;
 	}
 
-	ret = theme_get_form_value(request, "dark_variant", &dark_variant,
+	ret = failsafe_get_form_value(request, "dark_variant", &dark_variant,
 		THEME_DARK_VARIANT_MAX_LEN, true, true);
 	if (ret) {
 		free(color);
