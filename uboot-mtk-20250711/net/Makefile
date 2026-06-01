@@ -7,18 +7,18 @@
 
 ifeq ($(CONFIG_NET),y)
 
-WEBUI_FAILSAFE_GIT_HASH := $(shell \
+WEBUI_FAILSAFE_GIT_HASH := $(or $(strip $(shell \
 	for try in . .. ../..; do \
 		git -C $(srctree)$$try rev-parse --short=7 HEAD 2>/dev/null && break; \
-	done || echo unknown)
+	done)),unknown)
 
-WEBUI_FAILSAFE_GIT_DIRTY := $(shell \
+WEBUI_FAILSAFE_GIT_DIRTY := $(or $(strip $(shell \
 	for try in . .. ../..; do \
 		if git -C $(srctree)$$try rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
 			test -n "$$(git -C $(srctree)$$try status --porcelain --untracked-files=no 2>/dev/null)" && echo 1 || echo 0; \
 			break; \
 		fi; \
-	done || echo 0)
+	done)),0)
 
 obj-$(CONFIG_NET)      += arp.o
 obj-$(CONFIG_CMD_BOOTP) += bootp.o
