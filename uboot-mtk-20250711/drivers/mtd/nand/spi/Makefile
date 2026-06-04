@@ -12,6 +12,7 @@ spinand-$(CONFIG_MTD_SPI_NAND_FMSH)					+= fmsh.o
 spinand-$(CONFIG_MTD_SPI_NAND_FORESEE)				+= foresee.o
 spinand-$(CONFIG_MTD_SPI_NAND_GIGADEVICE)			+= gigadevice.o
 spinand-$(CONFIG_MTD_SPI_NAND_GSTO)					+= gsto.o
+spinand-$(CONFIG_MTD_SPI_NAND_HEYANGTEK)			+= heyangtek.o
 spinand-$(CONFIG_MTD_SPI_NAND_HIKSEMI)				+= hiksemi.o
 spinand-$(CONFIG_MTD_SPI_NAND_HYF)					+= hyf.o
 spinand-$(CONFIG_MTD_SPI_NAND_JSC)					+= jsc.o

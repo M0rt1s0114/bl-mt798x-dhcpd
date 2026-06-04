@@ -308,6 +308,7 @@ extern const struct spinand_manufacturer fmsh_spinand_manufacturer;
 extern const struct spinand_manufacturer foresee_spinand_manufacturer;
 extern const struct spinand_manufacturer gigadevice_spinand_manufacturer;
 extern const struct spinand_manufacturer gsto_spinand_manufacturer;
+extern const struct spinand_manufacturer heyangtek_spinand_manufacturer;
 extern const struct spinand_manufacturer hiksemi_spinand_manufacturer;
 extern const struct spinand_manufacturer hyf_spinand_manufacturer;
 extern const struct spinand_manufacturer jsc_spinand_manufacturer;
