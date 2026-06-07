@@ -14,16 +14,17 @@
 static int write_factory(void *priv, const struct data_part_entry *dpe,
 			 const void *data, size_t size)
 {
+	const char *partname = get_rf_part_name();
 	int ret;
 
-	ret = write_mtd_part("factory", data, size, true);
+	ret = write_mtd_part(partname, data, size, true);
 	if (!ret)
 		return 0;
 
 	if (ret != -ENODEV)
 		return ret;
 
-	return write_mmc_part("factory", data, size, true);
+	return write_mmc_part(partname, data, size, true);
 }
 
 static const struct data_part_entry snor_emmc_parts[] = {

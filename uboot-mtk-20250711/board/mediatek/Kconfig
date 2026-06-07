@@ -252,6 +252,28 @@ config MTK_UBI_RF_IN_MTD_PART
 	  Enable this option to store/upgrade factory in a raw MTD partition
 	  named "factory" instead of a UBI volume.
 
+config MTK_RF_PART_AUTO
+	bool "Use auto detection for factory (RF calibration) partition"
+	default y
+	help
+	  When enabled, the bootmenu will auto-detect the factory/RF calibration
+	  partition by first trying "factory", then falling back to "Factory".
+	  This is the default behavior for standard devices.
+
+	  When disabled, you can specify a custom partition name for devices
+	  that use non-standard naming (e.g. "RF", "Factory", "rf_data").
+
+config MTK_RF_PART_CUSTOM
+	string "Custom factory (RF calibration) partition name"
+	depends on !MTK_RF_PART_AUTO
+	default "factory"
+	help
+	  When auto detection is disabled, this custom partition name will be
+	  used for reading/writing the wireless calibration data.
+
+	  Set this to match the actual partition/volume name on your device
+	  (e.g. "RF", "art", "eeprom", "rf_data").
+
 config MTK_DUAL_BOOT_EMERG_IMAGE_UPGRADE
 	bool "Enable upgrading emergency image (Debug only)"
 	depends on MTK_DUAL_BOOT_EMERG_IMAGE

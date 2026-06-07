@@ -21,6 +21,9 @@
 
 static const char *alt_partname_factory(const char *partname)
 {
+	if (!IS_ENABLED(CONFIG_MTK_RF_PART_AUTO))
+		return NULL;
+
 	if (!partname)
 		return NULL;
 
@@ -259,7 +262,7 @@ int generic_ubi_write_fip(void *priv, const struct data_part_entry *dpe,
 int generic_ubi_write_factory(void *priv, const struct data_part_entry *dpe,
 			      const void *data, size_t size)
 {
-	return ubi_update_volume("factory", data, size);
+	return ubi_update_volume(get_rf_part_name(), data, size);
 }
 
 #ifdef CONFIG_MTK_DUAL_FIP
@@ -517,7 +520,7 @@ int generic_mtd_write_simg(void *priv, const struct data_part_entry *dpe,
 int generic_mtd_write_factory(void *priv, const struct data_part_entry *dpe,
 			      const void *data, size_t size)
 {
-	return write_mtd_part("factory", data, size, true);
+	return write_mtd_part(get_rf_part_name(), data, size, true);
 }
 
 int generic_mtd_validate_fw(void *priv, const struct data_part_entry *dpe,
