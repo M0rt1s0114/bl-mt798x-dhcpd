@@ -172,22 +172,23 @@ command -v npm
 
 ensure_failsafe_js_deps() {
 	failsafe_dir="$UBOOT_DIR/failsafe"
-	package_json="$failsafe_dir/package.json"
-	marker="$failsafe_dir/.npm-install-done"
+	embed_dir="$failsafe_dir/embedded"
+	package_json="$embed_dir/package.json"
+	marker="$embed_dir/.npm-install-done"
 
 	if [ ! -f "$package_json" ]; then
 		echo "Skipping failsafe JS dependency setup: $package_json not found."
 		return 0
 	fi
 
-	if [ -f "$marker" ] && [ -d "$failsafe_dir/node_modules/uglify-js" ]; then
+	if [ -f "$marker" ] && [ -d "$embed_dir/node_modules/uglify-js" ]; then
 		echo "Failsafe JS build dependencies already installed."
 		return 0
 	fi
 
 	command -v npm >/dev/null 2>&1 || { echo "Error: npm is not installed on this system."; exit 1; }
 	echo "Installing failsafe JS build dependencies..."
-	(cd "$failsafe_dir" && npm install --no-audit --no-fund) || exit 1
+	(cd "$embed_dir" && npm install --no-audit --no-fund) || exit 1
 	touch "$marker"
 	echo "Failsafe JS build dependencies installed."
 }
